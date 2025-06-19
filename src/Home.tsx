@@ -143,9 +143,6 @@ const Home = () => {
                 <Text style={styles.eachText}>{item.title}</Text>
                 <View style={styles.authorDetails}>
                     <View>
-                        <View>
-                            <Image />
-                        </View>
                         <Text>By : Mason Eduard<Text></Text></Text>
                     </View>
                     <View style={{
@@ -161,11 +158,14 @@ const Home = () => {
 
     }
 
+    const closeBottomSheet = () =>{
+        rnBootmSheetRef?.current?.close()
+    }
     const renderBottomSheet = () => {
         return (
             <RBSheet
                 ref={rnBootmSheetRef}
-                height={300}
+                height={250}
                 openDuration={250}
                 customStyles={{
                     wrapper: {
@@ -181,6 +181,11 @@ const Home = () => {
                     },
                 }}>
                 <View>
+                    <View style={styles.sheetContainer}>
+                        <Feather name="arrow-left" size={responsiveFontSize(4)} color={"black"} />
+                        <Text style={styles.filterStyles}>Filter by</Text>
+                        <Text onPress={closeBottomSheet} style={styles.doneStyles}>Done</Text>
+                    </View>
                     {filterData.map((eachItem: { id: number, name: string }) => {
                         return (
                             <View style={styles.eachTitleContainer}><Text style={styles.eachTitle}>{eachItem.name}</Text></View>
@@ -315,6 +320,29 @@ const dummyTabs: IDummyTabs[] = [
 export default Home
 
 const styles = StyleSheet.create({
+    homeImageStyles:{
+        height:50,
+        width:50,
+        borderRadius:10,
+        overflow:"hidden",
+    },
+    doneStyles: {
+        fontFamily: "Roboto",
+        fontSize: responsiveFontSize(2.5),
+        fontWeight: "500",
+        color: "#5143D9",
+    },
+    filterStyles: {
+        fontFamily: "Roboto",
+        fontSize: responsiveFontSize(2.5),
+        fontWeight: "800",
+        color: "#000000",
+    },
+    sheetContainer:{
+        justifyContent:"space-between",
+        alignItems:"center",
+        flexDirection:"row",
+    },
     viewContent: {
         fontFamily: "Roboto",
         fontSize: responsiveFontSize(2),
@@ -392,12 +420,12 @@ const styles = StyleSheet.create({
     },
     eachTitle: {
         fontFamily: "Roboto",
-        fontSize: responsiveFontSize(2.2),
-        color: "#000000"
+        fontSize: responsiveFontSize(2.8),
+        color: "#000000",
+        paddingVertical:responsiveHeight(1.5)
     },
     eachTitleContainer: {
-        borderWidth: 1,
-        borderColor: "black"
+       
     },
     dateText: {
         fontSize: responsiveFontSize(1.4)
