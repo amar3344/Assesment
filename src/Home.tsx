@@ -1,4 +1,4 @@
-import { FlatList, Image, ImageBackground, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { ActivityIndicator, FlatList, Image, ImageBackground, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
 import React, { useEffect, useRef, useState } from "react"
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from "react-native-responsive-dimensions"
 import { useDispatch, useSelector } from "react-redux"
@@ -67,6 +67,7 @@ const Home = () => {
     const [searchInput, setSearcInput] = useState<string>("")
     const dispatch = useDispatch<AppDispatch>()
     const postData = useSelector((state: RootState) => state.home.posts)
+    const loader = useSelector((state: RootState) => state.home.loading)
     const [activeTab, setActiveTab] = useState<string>("All")
     const [isVisible, setVisibleModal] = useState(false)
     let timeOut: any;
@@ -76,7 +77,7 @@ const Home = () => {
     useEffect(() => {
         dispatch(HomeApiCall())
         return () => clearTimeout(timeOut)
-    }, [postData])
+    }, [])
 
     const openBottomSheet = () => {
         if (rnBootmSheetRef.current) {
@@ -200,6 +201,12 @@ const Home = () => {
         setVisibleModal(false)
     }
 
+    const renderLoderComponent = () =>{
+        return(
+            <ActivityIndicator size={"large"} color={"orange"}/>
+        )
+    }
+
     const renderEachView = () => {
         return (
             <Modal
@@ -272,6 +279,7 @@ const Home = () => {
             </View>
             <View>
                 <Text style={styles.reccomendedText}>Recommended</Text>
+                 {loader && renderLoderComponent()}
                 <FlatList
                     showsHorizontalScrollIndicator={true}
                     horizontal
