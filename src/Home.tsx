@@ -210,7 +210,6 @@ const styles = StyleSheet.create({
         margin: 10,
         height: responsiveHeight(30),
         width: responsiveWidth(70),
-        backgroundColor: "yellow",
         overflow: "hidden",
         borderRadius: responsiveWidth(5),
         padding: responsiveFontSize(1)
