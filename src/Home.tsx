@@ -6,6 +6,7 @@ import { HomeApiCall } from "./redux/slicers/HomeSlicer"
 import { AppDispatch, RootState } from "./redux/Store"
 import Feather from "react-native-vector-icons/Feather"
 import { HomeApi } from "./redux/slicers/reduxSlicer"
+import AntDesign from "react-native-vector-icons/AntDesign"
 
 interface HomeProps {
 
@@ -17,69 +18,21 @@ interface HomeState {
 
 const dummyjson = [
     {
-        "id": 1,
-        "title": "His mother had always taught him",
-        "body": "His mother had always taught him not to ever think of himself as better than others. He'd tried to live by this motto. He never looked down on those who were less fortunate or who had less money than him. But the stupidity of the group of people he was talking to made him change his mind.",
-        "tags": [
-            "history",
-            "american",
-            "crime"
-        ],
-        "reactions": {
-            "likes": 192,
-            "dislikes": 25
-        },
-        "views": 305,
-        "userId": 121
+        id:1,
+        image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnFWdf5qeFKm3MknPNtkPBGP7y7anXqJo0IQ&s",
+        title:"Augmented Reality Trends for 2022",
+        tag:"Technology",
+        date:"Jan 4, 2022",
+        views:3344
     },
-    {
-        "id": 1,
-        "title": "His mother had always taught him",
-        "body": "His mother had always taught him not to ever think of himself as better than others. He'd tried to live by this motto. He never looked down on those who were less fortunate or who had less money than him. But the stupidity of the group of people he was talking to made him change his mind.",
-        "tags": [
-            "history",
-            "american",
-            "crime"
-        ],
-        "reactions": {
-            "likes": 192,
-            "dislikes": 25
-        },
-        "views": 305,
-        "userId": 121
-    },
-    {
-        "id": 1,
-        "title": "His mother had always taught him",
-        "body": "His mother had always taught him not to ever think of himself as better than others. He'd tried to live by this motto. He never looked down on those who were less fortunate or who had less money than him. But the stupidity of the group of people he was talking to made him change his mind.",
-        "tags": [
-            "history",
-            "american",
-            "crime"
-        ],
-        "reactions": {
-            "likes": 192,
-            "dislikes": 25
-        },
-        "views": 305,
-        "userId": 121
-    },
-    {
-        "id": 1,
-        "title": "His mother had always taught him",
-        "body": "His mother had always taught him not to ever think of himself as better than others. He'd tried to live by this motto. He never looked down on those who were less fortunate or who had less money than him. But the stupidity of the group of people he was talking to made him change his mind.",
-        "tags": [
-            "history",
-            "american",
-            "crime"
-        ],
-        "reactions": {
-            "likes": 192,
-            "dislikes": 25
-        },
-        "views": 305,
-        "userId": 121
-    },
+        {
+        id:2,
+        image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnFWdf5qeFKm3MknPNtkPBGP7y7anXqJo0IQ&s",
+        title:"Stocks making the biggest moves midday: Tesla...",
+        tag:"Business",
+        date:"Jan 1, 2022",
+        views:9823
+    }
 ]
 
 
@@ -87,18 +40,23 @@ const Home = () => {
     const [searchInput, setSearcInput] = useState<string>("")
     const dispatch = useDispatch<AppDispatch>()
     const postData = useSelector((state: RootState) => state.home.posts)
-    console.log(postData, "<<<<<")
+    const [activeTab,setActiveTab] = useState("All")
     const getSearchInput = (searchValue: string) => {
         getSearchInput(searchValue)
     }
     useEffect(() => {
         dispatch(HomeApiCall())
     }, [])
+
+    const handleActiveTab = (tab:string) =>{
+        setActiveTab(tab)
+    }
     const renderEachTab = ({ item, index }: { item: any, index: number }) => {
         return (
-            <View style={styles.eachTab}>
-                <Text>{item.name}</Text>
-            </View>
+            <TouchableOpacity 
+             style={ activeTab === item.name ? styles.activeStyles : styles.eachTab} onPress={()=>handleActiveTab(item.name)}>
+                <Text style={activeTab === item.name ? styles.activeTabStyles : styles.tabStyles}>{item.name}</Text>
+            </TouchableOpacity>
         )
     }
     const renderEachArticle = () => {
@@ -117,13 +75,28 @@ const Home = () => {
                 <View style={styles.imageStyles}>
                     <ImageBackground source={{ uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUrZUHQBxCpGKmxj7E0cww8dM1ysPxCfVSag&s" }}
                         style={{ width: "100%", height: "100%" }} resizeMode="cover">
-                        <View>
-                            <Text>Technology</Text>
+                        <View style={styles.techStyles}>
+                            <Text style={styles.techText}>Technology</Text>
                         </View>
+                        <AntDesign name="aim" size={responsiveFontSize(4)} color={"black"}/>
                         <View><Text></Text></View>
                     </ImageBackground>
                 </View>
                 <Text style={styles.eachText}>{item.title}</Text>
+                <View style={styles.authorDetails}>
+                    <View>
+                    <View>
+                        <Image/>
+                    </View>
+                    <Text>By : Mason Eduard<Text></Text></Text>
+                    </View>
+                    <View style={{flexDirection:"row",
+                        alignItems:"center",
+                    }}>
+                        <Text>Jan 3,2022</Text>
+                        <Text>{item.views}</Text>
+                    </View>
+                </View>
             </View>
         )
 
@@ -148,8 +121,9 @@ const Home = () => {
                 </TouchableOpacity>
             </View>
             <View>
-                <Text>Recommended</Text>
+                <Text style={styles.reccomendedText}>Recommended</Text>
                 <FlatList
+                    showsHorizontalScrollIndicator={true}
                     horizontal
                     data={postData}
                     renderItem={renderEachItem}
@@ -175,14 +149,14 @@ const Home = () => {
 const dummyTabs = [
     {
         id: 1,
-        name: "All"
+        name: "All",
     },
     {
-        id: 1,
+        id: 2,
         name: "Technology"
     },
     {
-        id: 1,
+        id: 3,
         name: "LifeStyle"
     }
 ]
@@ -190,11 +164,51 @@ const dummyTabs = [
 export default Home
 
 const styles = StyleSheet.create({
+    tabStyles: {
+        fontFamily: "Roboto",
+        fontSize: responsiveFontSize(2),
+        color: "#828282",
+    },
+    activeTabStyles:{
+        fontFamily:"Roboto",
+        fontSize:responsiveFontSize(2),
+        color:"#FFFFFF",
+    },
+    reccomendedText:{
+        fontSize: responsiveFontSize(3),
+        color:"#000000",
+        fontWeight:"500"
+    },
+    techText:{
+        fontSize:responsiveFontSize(1.8),
+        color:"#FFFFFF"
+    },
+    techStyles:{
+        backgroundColor: '#f2f2f290',
+        padding:responsiveWidth(2),
+        borderRadius:responsiveFontSize(1),
+        justifyContent:"center",
+        alignItems:"center",
+        width:responsiveWidth(25),
+        margin:responsiveFontSize(1)
+    },
+    authorDetails:{
+        flexDirection:"row",
+        alignItems:"center",
+        justifyContent:"space-between",
+    },
     eachTab: {
         margin: 10,
         borderWidth: 1,
         borderRadius: 5,
         padding: 10,
+    },
+        activeStyles: {
+        margin: 10,
+        borderWidth: 1,
+        borderRadius: 5,
+        padding: 10,
+        backgroundColor:"#000000"
     },
     eachText: {
         fontFamily: "Roboto",
