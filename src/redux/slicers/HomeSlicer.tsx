@@ -5,12 +5,9 @@ export const HomeApiCall = createAsyncThunk(
     "HomeApiCall",
     async (_,{getState,fulfillWithValue,rejectWithValue}) =>{
         try{
-            const response = await fetch('https://dummyjson.com/posts/1');
-            console.log(response)
-            Alert.alert(JSON.stringify(response))
+            const response = await fetch('https://dummyjson.com/posts');
             const responseData = await response.json()
-            console.log(responseData,"RESPONSE")
-            return fulfillWithValue("Something went wrong!")
+            return fulfillWithValue(responseData.posts)
         }catch{
             return rejectWithValue("Something went wrong!")
         }
@@ -48,7 +45,8 @@ const HomeSlicer = createSlice({
         })
         builder.addCase(HomeApiCall.fulfilled,(state,action)=>{
             state.loading = false
-            // console.log(action)
+            state.posts = action.payload
+            console.log(action.payload)
         })
         builder.addCase(HomeApiCall.rejected,(state,action)=>{
             state.loading = false
