@@ -1,13 +1,14 @@
-import { FlatList, Image, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
-import React, { useEffect, useState } from "react"
+import { FlatList, Image, ImageBackground, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import React, { useEffect, useRef, useState } from "react"
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from "react-native-responsive-dimensions"
 import { useDispatch, useSelector } from "react-redux"
 import { HomeApiCall, IP } from "./redux/slicers/HomeSlicer"
 import { AppDispatch, RootState } from "./redux/Store"
 import Feather from "react-native-vector-icons/Feather"
-import { HomeApi } from "./redux/slicers/reduxSlicer"
-import AntDesign from "react-native-vector-icons/AntDesign"
 import Entypo from "react-native-vector-icons/Entypo"
+import RBSheet from 'react-native-raw-bottom-sheet';
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5"
+
 
 interface HomeProps {
 
@@ -45,18 +46,43 @@ const dummyjson: IDummyJson[] = [
     }
 ]
 
+const filterData = [
+    {
+        id: 1,
+        name: "Date"
+    },
+    {
+        id: 2,
+        name: "Authour"
+    },
+    {
+        id: 3,
+        name: "Authour"
+    }
+]
+
 
 const Home = () => {
+    const rnBootmSheetRef: React.RefObject<null> = useRef(null)
     const [searchInput, setSearcInput] = useState<string>("")
     const dispatch = useDispatch<AppDispatch>()
     const postData = useSelector((state: RootState) => state.home.posts)
-    const [activeTab, setActiveTab] = useState("All")
+    const [activeTab, setActiveTab] = useState<string>("All")
+    const [isVisible, setVisibleModal] = useState(false)
+    let timeOut: any;
     const getSearchInput = (searchValue: string) => {
         getSearchInput(searchValue)
     }
     useEffect(() => {
         dispatch(HomeApiCall())
-    }, [])
+        return () => clearTimeout(timeOut)
+    }, [postData])
+
+    const openBottomSheet = () => {
+        if (rnBootmSheetRef.current) {
+            rnBootmSheetRef?.current?.open()
+        }
+    }
 
     const handleActiveTab = (tab: string) => {
         setActiveTab(tab)
@@ -68,6 +94,9 @@ const Home = () => {
                 <Text style={activeTab === item.name ? styles.activeTabStyles : styles.tabStyles}>{item.name}</Text>
             </TouchableOpacity>
         )
+    }
+    const handleModalView = () => {
+        setVisibleModal(true)
     }
     const renderEachArticle = ({ item, index }: { item: IDummyJson, index: number }) => {
         return (
@@ -94,11 +123,12 @@ const Home = () => {
     }
     const renderEachItem = ({ item, index }: { item: IP, index: number }) => {
         return (
-            <View style={styles.eachItemStyles} key={item.id}>
+            <TouchableOpacity activeOpacity={1}
+                style={styles.eachItemStyles} key={item.id} onPress={handleModalView}>
                 <View style={styles.imageStyles}>
                     <ImageBackground source={{ uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUrZUHQBxCpGKmxj7E0cww8dM1ysPxCfVSag&s" }}
                         style={{ width: "100%", height: "100%" }} resizeMode="cover">
-                        <View style={{...styles.rowCont,justifyContent:"space-between"}}>
+                        <View style={{ ...styles.rowCont, justifyContent: "space-between" }}>
 
                             <View style={styles.techStyles}>
                                 <Text style={styles.techText}>Technology</Text>
@@ -126,9 +156,95 @@ const Home = () => {
                         <Text>{item.views}</Text>
                     </View>
                 </View>
-            </View>
+            </TouchableOpacity>
         )
 
+    }
+
+    const renderBottomSheet = () => {
+        return (
+            <RBSheet
+                ref={rnBootmSheetRef}
+                height={300}
+                openDuration={250}
+                customStyles={{
+                    wrapper: {
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                    },
+                    container: {
+                        borderTopLeftRadius: 20,
+                        borderTopRightRadius: 20,
+                        padding: 16,
+                    },
+                    draggableIcon: {
+                        backgroundColor: '#000',
+                    },
+                }}>
+                <View>
+                    {filterData.map((eachItem: { id: number, name: string }) => {
+                        return (
+                            <View style={styles.eachTitleContainer}><Text style={styles.eachTitle}>{eachItem.name}</Text></View>
+                        )
+                    })}
+                </View>
+            </RBSheet>
+        )
+    }
+
+    const closeViewModal = () =>{
+        setVisibleModal(false)
+    }
+
+    const renderEachView = () => {
+        return (
+            <Modal
+                animationType="slide"
+                visible={isVisible}
+                style={styles.centeredView}
+            >
+                <View style={styles.centeredView}>
+                    <View style={{ padding: responsiveWidth(5) }}>
+                        <TouchableOpacity onPress={closeViewModal}>
+                            <Feather name="arrow-left" size={responsiveFontSize(3)} color="black" />
+                        </TouchableOpacity>
+                        <View style={styles.viewImageCont}>
+                            <ImageBackground source={{ uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUrZUHQBxCpGKmxj7E0cww8dM1ysPxCfVSag&s" }}
+                                style={styles.viewImage} resizeMode="cover">
+                            </ImageBackground>
+                        </View>
+                        <View style={styles.viewRowCont}>
+                            <View style={styles.viewTechStyle}><Text style={styles.viewTechTextStyle}>Technology</Text></View>
+                            <View style={styles.rowCont}>
+                                <Text>Jan 1,2021</Text>
+                                <Entypo name="dot-single" size={responsiveFontSize(2)} color="#000" />
+                                <Text>3344 Views</Text>
+                            </View>
+                        </View>
+                        <View>
+                            <Text style={styles.viewTitle}>New VR Headsets That Will Shape the Metaverse</Text>
+                        </View>
+                        <View style={{ ...styles.viewRowCont, flexDirection: "row-reverse", marginVertical: responsiveHeight(1) }}>
+                            <FontAwesome5 name="share-square" size={responsiveFontSize(2)} color="#4F4F4F" />
+                            <View style={styles.rowCont}>
+                                <View style={styles.smallImageStyle}>
+                                    <Image style={{ height: "100%", width: "100%" }} resizeMode="cover" source={{ uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlciUyMHByb2ZpbGV8ZW58MHx8MHx8fDA%3D" }} />
+                                </View>
+                                <Text style={styles.viewAutor}>By : Mason Eduard</Text>
+                            </View>
+                        </View>
+                        <Text style={styles.viewContent}>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas id sit eu tellus sed cursus eleifend id porta. Lorem adipiscing mus vestibulum consequat porta eu ultrices feugiat. Et, faucibus ut amet turpis. Facilisis faucibus semper cras purus.
+                        </Text>
+                        <Text>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas id sit eu tellus sed cursus eleifend id porta.
+                        </Text>
+                        <Text>
+                            Fermentum et eget libero lectus. Amet, tellus aliquam, dignissim enim placerat purus nunc, ac ipsum. Ac pretium.
+                        </Text>
+                    </View>
+                </View>
+            </Modal>
+        )
     }
     return (
         <View style={styles.container}>
@@ -145,7 +261,7 @@ const Home = () => {
                         onChangeText={getSearchInput}
                     />
                 </View>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={openBottomSheet}>
                     <Feather name="filter" size={responsiveFontSize(3)} />
                 </TouchableOpacity>
             </View>
@@ -171,15 +287,17 @@ const Home = () => {
                     renderItem={renderEachArticle}
                 />
             </View>
+            {renderBottomSheet()}
+            {isVisible && renderEachView()}
         </View>
     )
 }
 
-interface IDummyTabs{
-    id:number,
-    name:string,
+interface IDummyTabs {
+    id: number,
+    name: string,
 }[]
-const dummyTabs:IDummyTabs[] = [
+const dummyTabs: IDummyTabs[] = [
     {
         id: 1,
         name: "All",
@@ -197,6 +315,90 @@ const dummyTabs:IDummyTabs[] = [
 export default Home
 
 const styles = StyleSheet.create({
+    viewContent: {
+        fontFamily: "Roboto",
+        fontSize: responsiveFontSize(2),
+        fontWeight: "500",
+        color: "#000000",
+        marginVertical: responsiveWidth(1)
+    },
+    viewTitle: {
+        fontFamily: "Roboto",
+        fontSize: responsiveFontSize(2.4),
+        fontWeight: "800",
+        color: "#000000",
+        marginVertical: responsiveWidth(2)
+    },
+    viewAutor: {
+        fontFamily: "Roboto",
+        fontSize: responsiveFontSize(1.8),
+        fontWeight: "400",
+        color: "#000000",
+        marginLeft: responsiveWidth(2)
+    },
+    smallImageStyle: {
+        height: responsiveHeight(5),
+        width: responsiveHeight(5),
+        borderRadius: responsiveFontSize(1),
+        overflow: "hidden",
+    },
+    viewRowCont: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between"
+    },
+    viewTechTextStyle: {
+        fontSize: responsiveFontSize(1.4),
+        color: "#000000",
+        padding: responsiveFontSize(1)
+    },
+    viewTechStyle: {
+        backgroundColor: "#00000010",
+        borderRadius: responsiveFontSize(1.3)
+    },
+    viewImageCont: {
+        height: responsiveHeight(30),
+        width: responsiveWidth(90),
+        marginVertical: responsiveHeight(2),
+        borderRadius: responsiveWidth(5),
+        overflow: "hidden"
+    },
+    viewImage: {
+        height: "100%",
+        width: "100%",
+    },
+    centeredView: {
+        flex: 1,
+    },
+    button: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+    },
+    buttonOpen: {
+        backgroundColor: '#F194FF',
+    },
+    buttonClose: {
+        backgroundColor: '#2196F3',
+    },
+    textStyle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+    eachTitle: {
+        fontFamily: "Roboto",
+        fontSize: responsiveFontSize(2.2),
+        color: "#000000"
+    },
+    eachTitleContainer: {
+        borderWidth: 1,
+        borderColor: "black"
+    },
     dateText: {
         fontSize: responsiveFontSize(1.4)
     },
@@ -261,7 +463,7 @@ const styles = StyleSheet.create({
         width: responsiveWidth(25),
         margin: responsiveFontSize(1)
     },
-    bookmarkstyles:{
+    bookmarkstyles: {
         backgroundColor: '#f2f2f290',
         padding: responsiveWidth(2),
         borderRadius: responsiveFontSize(1),

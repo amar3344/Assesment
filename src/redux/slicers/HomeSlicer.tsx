@@ -48,7 +48,6 @@ const HomeSlicer = createSlice({
         builder.addCase(HomeApiCall.fulfilled,(state,action)=>{
             state.loading = false
             state.posts = action.payload
-            console.log(action.payload)
         })
         builder.addCase(HomeApiCall.rejected,(state,action)=>{
             state.loading = false
