@@ -14,10 +14,8 @@ export const HomeApiCall = createAsyncThunk(
     }
 )
 
-interface IS{
-    loading:boolean,
-    posts:{
-      "id": number,
+export interface IP{
+     "id": number,
       "title": string,
       "body": string,
       "tags": string[],
@@ -27,7 +25,11 @@ interface IS{
       },
       "views": number,
       "userId": number
-    }[],
+}
+
+interface IS{
+    loading:boolean,
+    posts:IP[],
 }
 
 const initialState:IS = {
